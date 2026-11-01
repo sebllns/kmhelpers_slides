@@ -1,0 +1,11 @@
+name: quarto-slides
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - jupyter
+  - matplotlib
+  - numpy
+  - pip
+  - pip:
+      - quarto-cli==1.10.19

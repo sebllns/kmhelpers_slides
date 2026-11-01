@@ -1,0 +1,84 @@
+<style>
+  html.dark {
+    --r-background-color: #1e1e1e;
+    --r-main-color: #e6e6e6;
+    --r-heading-color: #f2f2f2;
+    --r-link-color: #6cb6ff;
+    --r-link-color-hover: #9ccfff;
+    --r-selection-background-color: #3a5f8a;
+  }
+  html.dark body,
+  html.dark .reveal-viewport {
+    background-color: var(--r-background-color) !important;
+  }
+  html.dark .reveal,
+  html.dark .reveal .slide-number {
+    color: var(--r-main-color);
+  }
+  html.dark .reveal h1,
+  html.dark .reveal h2,
+  html.dark .reveal h3 {
+    color: var(--r-heading-color);
+  }
+  html.dark .reveal a {
+    color: var(--r-link-color);
+  }
+  /* Light code blocks in both modes, so the default highlight stays readable */
+  .reveal div.sourceCode,
+  .reveal pre code {
+    background-color: #faf6ec;
+  }
+  html.dark .reveal pre code {
+    color: #003b4f;
+  }
+  html.dark .reveal .callout {
+    background-color: #262626;
+  }
+  /* Callout title bars stay light, so keep their text dark */
+  html.dark .reveal div.callout div.callout-title p {
+    color: #000;
+  }
+  #theme-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 100;
+    padding: 4px 10px;
+    font-size: 14px;
+    border: 1px solid #888;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+  html.dark #theme-toggle {
+    color: #e6e6e6;
+  }
+  @media print {
+    #theme-toggle { display: none; }
+  }
+</style>
+<button id="theme-toggle" type="button" aria-label="Toggle dark mode">Dark</button>
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('theme-toggle');
+
+    function apply(dark) {
+      root.classList.toggle('dark', dark);
+      btn.textContent = dark ? 'Light' : 'Dark';
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem('slides-theme'); } catch (e) {}
+    apply(saved === 'dark');
+
+    btn.addEventListener('click', function () {
+      var dark = !root.classList.contains('dark');
+      apply(dark);
+      try { localStorage.setItem('slides-theme', dark ? 'dark' : 'light'); } catch (e) {}
+      // Release focus so Space/arrows keep driving reveal.js
+      btn.blur();
+    });
+  })();
+</script>
