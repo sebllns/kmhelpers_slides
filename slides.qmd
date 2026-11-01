@@ -1,18 +1,17 @@
 ---
-title: "Quarto slides: feature tour"
-subtitle: "One source, several outputs"
-author: "Sébastien"
-institute: "Inria, GenScale"
-date: 2026-10-29
+title: "kmhelpers"
+subtitle: "Automated management of kmindex genomic indexes"
+author: "Sébastien Bellenous"
+institute: "Genscale, Univ. Rennes, Inria, CNRS, IRISA"
+date: 2026-11-01
 bibliography: references.bib
-execute:
-  echo: true
 format:
   revealjs:
     theme: simple
+    logo: images/logo.png
     slide-number: true
     incremental: false
-    code-line-numbers: true
+    code-line-numbers: false
     chalkboard: false
     include-after-body: assets/theme-toggle.html
   beamer:
@@ -24,149 +23,342 @@ format:
     slide-level: 2
 ---
 
-# Text and lists
+# Context
 
-## Bullet and numbered lists
+## Searching sequences at scale
 
-- First bullet
-- Second bullet with **bold**, *italic* and `inline code`
-  - Nested bullet
-  - Another nested bullet
+- A **k-mer** is a word of length $k$ taken from a sequence
+- A **Bloom filter** per sample records which k-mers it contains
+  - compact, can answer "yes" wrongly, never "no" wrongly
+- A query reports, per sample, the fraction of its k-mers found
+- **kmindex** [@lemane2024kmindex] builds and queries such indexes,
+  on top of **kmtricks** [@lemane2022]
+- Used to index ~50 petabases of SRA data (Logan-Search) [@logan2024]
 
-1. Step one
-2. Step two
-   a. Sub-step
-
-## Incremental lists and pauses
-
-::: incremental
-- Revealed one at a time
-- Works in revealjs and beamer
+::: notes
+1 min. Set the vocabulary: k-mer, Bloom filter, sample, query score.
 :::
+
+## Building one is a chain of decisions
+
+Getting *a* working index is easy, getting an *efficient* one is not:
+
+- size each Bloom filter to the k-mer count of its sample
+- tune kmindex internals (findere, minimizers, partitions)
+- fit each build in the RAM, disk and open files of the machine
+- group samples into sub-indexes: index size vs query speed
+- keep the index up to date as new samples arrive
 
 . . .
 
-Text after a pause.
-
-## Links and footnotes
-
-- External link: [Quarto documentation](https://quarto.org/docs/presentations/)
-- Autolink: <https://github.com/tlemane/kmindex>
-- Internal link to a slide: [code section](#code)
-- Citation: kmindex [@lemane2024kmindex]
-- A footnote^[Rendered at the bottom of the slide.]
-
-# Media and layout
-
-## Static image
-
-![Caption of the static image](images/static.png){width=60%}
-
-## Two columns
-
-:::: columns
-::: {.column width="50%"}
-Left column
-
-- Point A
-- Point B
-:::
-
-::: {.column width="50%"}
-![](images/static.png){width=100%}
-:::
-::::
-
-## Table
-
-| Tool    | Input       | Output        |
-|---------|-------------|---------------|
-| BCALM2  | FASTA/FASTQ | Unitigs       |
-| kmindex | FASTA/FASTQ | k-mer index   |
-
-: A pipe table with caption
-
-## Math
-
-Inline: $p = (1 - e^{-kn/m})^k$
-
-Display:
-
-$$
-\hat{n} = -\frac{m}{k} \ln\left(1 - \frac{X}{m}\right)
-$$
-
-# Code {#code}
-
-## Static code block
-
-```{.python code-line-numbers="2-3"}
-def canonical(kmer: str) -> str:
-    rc = kmer[::-1].translate(str.maketrans("ACGT", "TGCA"))
-    return min(kmer, rc)
-```
-
-Line highlighting applies to revealjs only.
-
-## Executed code with output
-
-```{python}
-from collections import Counter
-
-seq = "ACGTACGTTGCA"
-k = 3
-counts = Counter(seq[i : i + k] for i in range(len(seq) - k + 1))
-counts.most_common(3)
-```
-
-## Generated figure
-
-```{python}
-#| echo: false
-#| fig-cap: "Generated at render time (seeded)"
-#| fig-width: 6
-#| fig-height: 2.8
-import matplotlib.pyplot as plt
-import numpy as np
-
-rng = np.random.default_rng(42)
-plt.hist(rng.poisson(20, 10_000), bins=40)
-plt.xlabel("k-mer multiplicity")
-plt.ylabel("count")
-plt.show()
-```
-
-# Extras
-
-## Callout
-
-::: {.callout-note}
-## Note
-Callouts render in all three formats, with format-specific styling.
-:::
-
-## Format-specific content and notes
-
-::: {.content-visible when-format="revealjs"}
-Only shown in the HTML slides.
-:::
-
-::: {.content-visible when-format="beamer"}
-Only shown in the PDF slides.
-:::
+**kmhelpers automates these decisions**, from raw samples to queries.
 
 ::: notes
-Speaker notes: press `S` in revealjs; they become PowerPoint notes in pptx.
+1.5 min. A wrong choice at any step wastes compute or yields an oversized index.
 :::
 
-## Downloads
+## Why grouping matters
 
-- HTML slides: <https://sebllns.github.io/quarto-demo/>
-- PDF: <https://sebllns.github.io/quarto-demo/slides.pdf>
-- PowerPoint: <https://sebllns.github.io/quarto-demo/slides.pptx>
-- All formats (zip): <https://sebllns.github.io/quarto-demo/slides.zip>
+All Bloom filters of one size are stored as **one matrix** (one sub-index):
+one column per sample, one row per k-mer hash.
 
-## References
+| Strategy | Files opened per query | Storage |
+|----------|:----------------------:|:-------:|
+| One size for all (largest sample) | 1 | very large |
+| One sub-index per sample | $n$ (up to millions) | minimal |
+| **kmhelpers**: $G$ groups | $G$ | close to minimal |
+
+Sample sizes span several orders of magnitude, so the middle ground matters.
+
+::: notes
+1.5 min. The user fixes G, profile picks the Bloom filter size of each group
+that minimizes total size.
+:::
+
+## kmhelpers in one slide {.smaller}
+
+- **Design**: discover samples, count k-mers (ntCard), group them into sub-indexes
+- **Build**: check files, disk and memory upfront, then build and merge with kmindex
+- **Update**: add samples without recounting the ones already indexed
+- **Query**: FASTA/FASTQ (plain or compressed) to TSV, JSON or YAML, with statistics
+- **Manage**: compress, register several indexes as one, YAML pipelines
+
+. . .
+
+CLI (`kmhelpers`, alias `kh`) and a matching Python API, Python >= 3.10, GPL-3.0
+
+```bash
+pip install kmhelpers && kmhelpers install-deps
+conda install -c conda-forge -c bioconda kmhelpers
+```
+
+# Workflow
+
+## Overview
+
+![](images/workflow.png){fig-align="center" height="560"}
+
+::: notes
+1 min. Design (list, profile, compose), build (plan, apply), query.
+Yellow: new index, green: update.
+:::
+
+## Three commands
+
+```bash
+# 1. Design: list samples, profile them, compose index definitions
+kmhelpers design /data/sequences -o coli_db/ -n coli
+
+# 2. Build: plan, then apply
+kmhelpers build coli_db/compose/coli/initial/coli.yaml \
+    -o coli_build/
+
+# 3. Query with FASTA/FASTQ sequences
+kmhelpers query -r coli_build/ -o results/ query.fa
+```
+
+Each step can also be run on its own:
+`list` -> `profile` -> `compose`, then `plan` -> `apply`.
+
+::: notes
+1 min. Syntax of the released v0.7.3.
+:::
+
+## design 1/3: list, counting k-mers
+
+- Scans a directory (or a file list) and writes a JSONL manifest
+- Counts k-mers with **ntCard** [@mohamadi2017], a streaming estimator
+- The count drives the Bloom filter size of each sample
+
+| Data type | Mode | Value |
+|-----------|------|-------|
+| assembled (`-dt assembled`) | DISTINCT | $F_0$ |
+| raw reads (`-dt unassembled`) | SOLID | $F_0 - f_1$ |
+
+Singletons in raw reads are mostly sequencing errors.
+
+## design 2/3: profile, spans
+
+A **span** is the size class of a sample: $s = \lfloor \log_{b}(n) \rfloor$,
+$n$ its k-mer count, $b$ the base (`-b`, e.g. 1.1).
+
+![](images/span_def.png){fig-align="center" width="80%"}
+
+Samples of one span share one Bloom filter size.
+
+## design 2/3: profile, groups
+
+![](images/coli_profile.png){fig-align="center" height="420"}
+
+`-g 2` on 10 *E. coli* assemblies: consecutive spans merged into
+2 groups, **135 MB -> 49.2 MB**.
+
+::: notes
+1.5 min. profile.yaml and groups.png are written for inspection before building.
+:::
+
+## design 3/3: compose
+
+- Assigns each sample to its group and writes the **index definitions**
+- Writes a **layout** file: groups, Bloom sizes, partitions, fixed for the
+  life of the index
+- Each run is a **session** (`-S initial`, `-S update`, ...)
+- Optional **sharding** (`--shard-size`): a large group is split into
+  independent shards, never merged together
+
+## build: plan, then apply {.smaller}
+
+**plan**
+
+- validates every sample path, disk space and memory upfront
+- sizes threads and partitions from resource limits
+- writes ready-to-run shell scripts (`--offline` for another machine)
+
+**apply**
+
+- runs kmtricks/kmindex, then merges and registers the sub-indexes
+- filters by span or name, resumes an interrupted build
+
+## query
+
+```bash
+kmhelpers query -r coli_build/ -o results/ query.fa.gz -z 6
+```
+
+- **findere** [@robidou2021findere]: build with FP rate $p = 0.25$,
+  query $(k+z)$-mers, effective FP rate $p^z$
+  - $0.25^6 \approx 0.024\,\%$, with small Bloom filters
+- Inputs: FASTA/FASTQ, gz, bz2, xz, zst, stdin
+- Outputs: TSV, JSON, YAML, plus `sequence_stats.tsv`
+  and `sample_stats.tsv`
+- Markdown or HTML report (`--export`, in development)
+
+## Updating an index
+
+```bash
+kmhelpers design new_samples.txt -o coli_db/ -n coli -S update
+kmhelpers build coli_db/compose/coli/update/coli.yaml \
+    -o coli_build/
+```
+
+- The layout is reused: no new profile, existing samples not recounted
+- New samples are built, then merged with the current sub-index
+- The previous version stays queryable until the swap
+
+## Tuning groups and partitions
+
+- `-g` groups: samples split into $G$ sub-indexes
+- `-p` partitions: each matrix split into $P$ files, by minimizer
+
+| Goal | Groups (`-g`) | Partitions (`-p`) |
+|------|:-------------:|:-----------------:|
+| Faster queries | - | - |
+| Lower build RAM | + | + |
+| Less storage | + | |
+
+A query only reads the partitions its k-mers fall into.
+
+## Automation and API
+
+YAML pipelines, with `-x` overrides at run time:
+
+```yaml
+- apply:
+    workdir: /path/a
+    input_files: [a.yaml]
+- apply:
+    workdir: /path/b
+    input_files: [b.yaml]
+```
+
+- `kmhelpers pipeline my_pipeline.yaml -x threads 16`
+- Global config file (`-C`), environment variables, log file
+- Public Python API covering every command
+
+# Use cases
+
+## Tree of Life and Logan-Search
+
+**Tree of Life, Wellcome Sanger Institute**
+
+- detect sample swaps (long reads vs HiC that do not match)
+- **7,394 samples**, raw reads and assemblies mixed
+- index updated as new data arrive; shaped the design of kmhelpers
+
+**Logan-Search** [@logan2024]
+
+- ~50 petabases of SRA indexed
+- SRA has doubled since: the update will use kmhelpers
+
+::: notes
+2 min. The Logan update is the driver for the cluster build that follows.
+:::
+
+# SLURM build (WIP)
+
+## Branch `dev/v0.8.0-tacc`
+
+Goal: run the Logan-scale update on TACC, a SLURM cluster.
+
+- **plan prepares, apply runs**: `plan` takes every decision and writes
+  `plan.yaml` plus one script folder per shard
+- `apply` only runs these scripts: any of them can run on any node
+- Every script can be run again: complete runs are kept, incomplete
+  ones rebuilt
+- A session is planned once; `--replan` to start over
+
+::: notes
+1.5 min. Work in progress, not released. About 120 files changed.
+:::
+
+## Cluster file
+
+```yaml
+type: slurm
+partition: compute
+time: 2-00:00:00
+max_parallel: 8          # array tasks at once
+setup: |                 # run before kmhelpers in every job
+  export PATH=/path/to/kmhelpers/.env/bin:$PATH
+jobs:                    # resources per kind of job
+  build:   {cpus: 24, mem: 120G}
+  publish: {cpus: 24, mem: 120G}
+  check:   {cpus: 1, mem: 4G, time: "1:00:00"}
+```
+
+```bash
+kmhelpers build coli_db -o coli_build/ --hpc cluster.yaml
+```
+
+Chunks are sized from `jobs.build`, merges from `jobs.publish`.
+
+## Job graph
+
+```
+build.sbatch     array, one task per build job (kmtricks chunks)
+     |           several nodes at once, at most max_parallel
+     v
+publish.sbatch   one job per shard, after its own array tasks:
+     |           check runs, merge, swap in, manage check
+     v
+finish.sbatch    after every job (afterany): check registry,
+                 remove locks, write progress.yaml, send mail
+```
+
+- `--kill-on-invalid-dep=yes`: a failure never leaves jobs pending
+- `submit.sh` is safe to run again: only what is not done is submitted
+
+## Features {.smaller}
+
+- `--hpc FILE`: plan, generate the sbatch files, submit, exit
+- `--chunks-per-job N`: chunks of a shard grouped into one job
+- `apply --status [--sp]`: per shard and step, `SUCCESS`, `FAILED`,
+  `RUNNING`, `PENDING`, `LOST` (with the SLURM reason), `CANCELLED`
+- `apply --task PATTERN`: live RAM and kmtricks phase of a step
+- `apply --cancel`: `scancel` the jobs of the plan
+- `--notify EMAIL --notify-level shard`: one mail per shard
+- `manage check`: positive and negative queries before publishing
+- Stats per run and shard: time, peak RAM and disk, FP rate
+
+## Following a build
+
+```bash
+kmhelpers apply coli_db -o coli_build/ --status --sp
+```
+
+```yaml
+idx_g0:
+  idx_g0_initial_chunk0: SUCCESS
+  idx_g0_initial_chunk1: FAILED (log: logs/idx_g0/...chunk1.log)
+  idx_g0_initial_chunk2: RUNNING (job 18001_2, node12, since 10:02)
+  idx_g0_initial_chunk3: PENDING (job 18001_3)
+  publish: PENDING (job 18002)
+```
+
+Running the same `build` again resubmits only what failed or was lost.
+
+# Wrap-up
+
+## Status
+
+- **v0.7.3** released: PyPI, Bioconda, docs, JOSS paper under review
+- **v0.8.0** (in development)
+  - abundance indexes, paired reads, automatic group count
+  - shard and chunk budgets, from Logan
+  - SLURM build, being tested on TACC
+- Still in development: `manage` (federated registries), `compress`
+
+## Links
+
+- Code: <https://github.com/sebllns/kmhelpers>
+- Docs: <https://sebllns.github.io/kmhelpers/>
+- Contact: kmhelpers@groupes.renater.fr
+- Cite: @kmhelpers
+
+Thanks to Téo Lemane (kmindex), Pierre Peterlongo, Kamil S. Jaron,
+GenOuest, Inria Challenge OmicFinder, ANR-22-PEAE-0005.
+
+## References {.smaller .scrollable}
 
 ::: {#refs}
 :::
