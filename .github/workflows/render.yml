@@ -34,35 +34,35 @@ jobs:
 
       - name: Render revealjs
         if: env.EXPORT_HTML == 'true'
-        run: quarto render talk.qmd --to revealjs -M embed-resources:true
+        run: quarto render slides.qmd --to revealjs -M embed-resources:true
 
       - name: Render beamer
         if: env.EXPORT_PDF == 'true'
-        run: quarto render talk.qmd --to beamer
+        run: quarto render slides.qmd --to beamer
 
       - name: Render pptx
         if: env.EXPORT_PPTX == 'true'
-        run: quarto render talk.qmd --to pptx
+        run: quarto render slides.qmd --to pptx
 
       - uses: actions/upload-artifact@v4
         with:
           name: slides
           path: |
-            talk.html
-            talk.pdf
-            talk.pptx
+            slides.html
+            slides.pdf
+            slides.pptx
           if-no-files-found: error
 
       - name: Prepare Pages site
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           mkdir -p _site
-          if [ -f talk.html ]; then cp talk.html _site/index.html; fi
-          for f in talk.pdf talk.pptx; do
+          if [ -f slides.html ]; then cp slides.html _site/index.html; fi
+          for f in slides.pdf slides.pptx; do
             if [ -f "$f" ]; then cp "$f" _site/; fi
           done
           # Public bundle of all built outputs
-          zip -j _site/slides.zip $(ls talk.html talk.pdf talk.pptx 2>/dev/null)
+          zip -j _site/slides.zip $(ls slides.html slides.pdf slides.pptx 2>/dev/null)
 
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

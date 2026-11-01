@@ -162,8 +162,8 @@ Speaker notes: press `S` in revealjs; they become PowerPoint notes in pptx.
 ## Downloads
 
 - HTML slides: <https://sebllns.github.io/quarto-demo/>
-- PDF: <https://sebllns.github.io/quarto-demo/talk.pdf>
-- PowerPoint: <https://sebllns.github.io/quarto-demo/talk.pptx>
+- PDF: <https://sebllns.github.io/quarto-demo/slides.pdf>
+- PowerPoint: <https://sebllns.github.io/quarto-demo/slides.pptx>
 - All formats (zip): <https://sebllns.github.io/quarto-demo/slides.zip>
 
 ## References
