@@ -5,12 +5,14 @@ author: "Sébastien Bellenous"
 institute: "Genscale, Univ. Rennes, Inria, CNRS, IRISA"
 date: 2026-11-01
 bibliography: references.bib
+filters:
+  - assets/color.lua
 format:
   revealjs:
     theme: simple
     logo: images/logo.png
     slide-number: true
-    incremental: false
+    incremental: true
     code-line-numbers: false
     chalkboard: false
     include-after-body: assets/theme-toggle.html
@@ -29,15 +31,21 @@ format:
 
 - A **k-mer** is a word of length $k$ taken from a sequence
 - A **Bloom filter** per sample records which k-mers it contains
-  - compact, can answer "yes" wrongly, never "no" wrongly
+  - [compact, no false negatives]{.green}, but [false positives possible]{.red}
 - A query reports, per sample, the fraction of its k-mers found
 - **kmindex** [@lemane2024kmindex] builds and queries such indexes,
   on top of **kmtricks** [@lemane2022]
-- Used to index ~50 petabases of SRA data (Logan-Search) [@logan2024]
+- Used to index [~50 petabases]{.green} of SRA data (Logan-Search) [@logan2024]
 
 ::: notes
 1 min. Set the vocabulary: k-mer, Bloom filter, sample, query score.
 :::
+
+## Bloom Filter
+  - compact: about $1.44 \log_2(1/p)$ bits per k-mer, independent of $k$
+    (about 10 bits at $p = 1\%$, vs $2k = 62$ bits for $k = 31$) [@broder2004]
+  - [no false negatives]{.green}, but [false positives possible]{.red}
+
 
 ## Building one is a chain of decisions
 
@@ -77,11 +85,11 @@ that minimizes total size.
 
 ## kmhelpers in one slide {.smaller}
 
-- **Design**: discover samples, count k-mers (ntCard), group them into sub-indexes
+- **Design**: discover samples, count k-mers, group them into sub-indexes
 - **Build**: check files, disk and memory upfront, then build and merge with kmindex
 - **Update**: add samples without recounting the ones already indexed
 - **Query**: FASTA/FASTQ (plain or compressed) to TSV, JSON or YAML, with statistics
-- **Manage**: compress, register several indexes as one, YAML pipelines
+- **Manage**: compress, combine indexes in a single registry
 
 . . .
 
@@ -239,16 +247,14 @@ YAML pipelines, with `-x` overrides at run time:
 
 ## Tree of Life and Logan-Search
 
-**Tree of Life, Wellcome Sanger Institute**
+- **Tree of Life, Wellcome Sanger Institute**
+  - **Objective**: detect sample swaps (long-read and Hi-C data from different specimens)
+  - **7,394 samples**, raw reads and assemblies mixed
+  - index should be updated with new data; shaped the design of [**kmhelpers**]{.blue}
 
-- detect sample swaps (long reads vs HiC that do not match)
-- **7,394 samples**, raw reads and assemblies mixed
-- index updated as new data arrive; shaped the design of kmhelpers
-
-**Logan-Search** [@logan2024]
-
-- ~50 petabases of SRA indexed
-- SRA has doubled since: the update will use kmhelpers
+- **Logan-Search** [@logan2024]
+  - ~50 petabases of SRA indexed
+  - SRA has doubled since: the update (Logan 1.2) will use kmhelpers
 
 ::: notes
 2 min. The Logan update is the driver for the cluster build that follows.
@@ -256,7 +262,7 @@ YAML pipelines, with `-x` overrides at run time:
 
 # SLURM build (WIP)
 
-## Branch `dev/v0.8.0-tacc`
+## Branches `dev/v0.8.0*`
 
 Goal: run the Logan-scale update on TACC, a SLURM cluster.
 
@@ -308,6 +314,7 @@ finish.sbatch    after every job (afterany): check registry,
 - `--kill-on-invalid-dep=yes`: a failure never leaves jobs pending
 - `submit.sh` is safe to run again: only what is not done is submitted
 
+::: {.content-hidden}
 ## Features {.smaller}
 
 - `--hpc FILE`: plan, generate the sbatch files, submit, exit
@@ -319,6 +326,7 @@ finish.sbatch    after every job (afterany): check registry,
 - `--notify EMAIL --notify-level shard`: one mail per shard
 - `manage check`: positive and negative queries before publishing
 - Stats per run and shard: time, peak RAM and disk, FP rate
+:::
 
 ## Following a build
 
@@ -341,18 +349,16 @@ Running the same `build` again resubmits only what failed or was lost.
 
 ## Status
 
-- **v0.7.3** released: PyPI, Bioconda, docs, JOSS paper under review
+- **v0.7.3** PyPI, Bioconda, docs, JOSS paper ([**accepted**]{.green})
+- **v0.7.4** abundance indexes, paired reads, automatic group count
 - **v0.8.0** (in development)
-  - abundance indexes, paired reads, automatic group count
   - shard and chunk budgets, from Logan
   - SLURM build, being tested on TACC
-- Still in development: `manage` (federated registries), `compress`
 
 ## Links
 
 - Code: <https://github.com/sebllns/kmhelpers>
 - Docs: <https://sebllns.github.io/kmhelpers/>
-- Contact: kmhelpers@groupes.renater.fr
 - Cite: @kmhelpers
 
 Thanks to Téo Lemane (kmindex), Pierre Peterlongo, Kamil S. Jaron,
@@ -362,3 +368,5 @@ GenOuest, Inria Challenge OmicFinder, ANR-22-PEAE-0005.
 
 ::: {#refs}
 :::
+
+# Thank you
