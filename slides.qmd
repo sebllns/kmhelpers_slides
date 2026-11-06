@@ -3,7 +3,8 @@ title: "kmhelpers"
 subtitle: "Automated management of kmindex genomic indexes"
 author: "Sébastien Bellenous"
 institute: "Genscale, Univ. Rennes, Inria, CNRS, IRISA"
-date: 2026-11-01
+date: today
+date-format: "D MMMM YYYY"
 bibliography: references.bib
 filters:
   - assets/color.lua
