@@ -12,7 +12,7 @@ format:
     theme: simple
     logo: images/logo.png
     slide-number: true
-    incremental: true
+#    incremental: true
     code-line-numbers: false
     chalkboard: false
     include-after-body: assets/theme-toggle.html
@@ -47,14 +47,12 @@ format:
   - [no false negatives]{.green}, but [false positives possible]{.red}
 
 
-## Building one is a chain of decisions
-
-Getting *a* working index is easy, getting an *efficient* one is not:
+## Building is a chain of decisions
 
 - size each Bloom filter to the k-mer count of its sample
-- tune kmindex internals (findere, minimizers, partitions)
+- tune kmindex internals (false positives rate, minimizers, partitions, ...)
 - fit each build in the RAM, disk and open files of the machine
-- group samples into sub-indexes: index size vs query speed
+- group samples into sub-indexes: index size vs query speed (cf. Rebecca's work)
 - keep the index up to date as new samples arrive
 
 . . .
@@ -67,6 +65,9 @@ Getting *a* working index is easy, getting an *efficient* one is not:
 
 ## Why grouping matters
 
+FIGURE
+
+::: {.content-hidden}
 All Bloom filters of one size are stored as **one matrix** (one sub-index):
 one column per sample, one row per k-mer hash.
 
@@ -77,21 +78,28 @@ one column per sample, one row per k-mer hash.
 | **kmhelpers**: $G$ groups | $G$ | close to minimal |
 
 Sample sizes span several orders of magnitude, so the middle ground matters.
+:::
 
 ::: notes
 1.5 min. The user fixes G, profile picks the Bloom filter size of each group
 that minimizes total size.
 :::
 
-## kmhelpers in one slide {.smaller}
+# kmhelpers
 
+## Why ?
+
+::: {.content-hidden}
 - **Design**: discover samples, count k-mers, group them into sub-indexes
 - **Build**: check files, disk and memory upfront, then build and merge with kmindex
 - **Update**: add samples without recounting the ones already indexed
 - **Query**: FASTA/FASTQ (plain or compressed) to TSV, JSON or YAML, with statistics
 - **Manage**: compress, combine indexes in a single registry
+:::
 
-. . .
+## Install
+
+WAYS TO INSTALL + LINKS
 
 CLI (`kmhelpers`, alias `kh`) and Python API, Python >= 3.10, GPL-3.0
 
@@ -111,7 +119,7 @@ conda install -c conda-forge -c bioconda kmhelpers
 Yellow: new index, green: update.
 :::
 
-## Three commands
+## Super commands
 
 1. Design: list samples, profile them, compose index definitions
 
@@ -234,16 +242,9 @@ kmhelpers build coli_db/compose/coli/update/coli.yaml \
 
 ## Tuning groups and partitions
 
-- `-g` groups: samples split into $G$ sub-indexes
-- `-p` partitions: each matrix split into $P$ files, by minimizer
+- groups: samples split into $G$ sub-indexes
+- partitions: each matrix split into $P$ files, by minimizer
 
-| Goal | Groups (`-g`) | Partitions (`-p`) |
-|------|:-------------:|:-----------------:|
-| Faster queries | - | - |
-| Lower build RAM | + | + |
-| Less storage | + | |
-
-A query only reads the partitions its k-mers fall into.
 
 ## Automation and API
 
@@ -264,20 +265,27 @@ YAML pipelines, with `-x` overrides at run time:
 
 # Use cases
 
-## Tree of Life and Logan-Search
+## Tree of Life, Wellcome Sanger Institute
 
 - **Tree of Life, Wellcome Sanger Institute**
   - **Objective**: detect sample swaps (long-read and Hi-C data from different specimens)
-  - **7,394 samples**, raw reads and assemblies mixed
+  - **~7.5k samples**, raw reads and assemblies mixed
   - index should be updated with new data; shaped the design of [**kmhelpers**]{.blue}
 
-- **Logan-Search** [@logan2024]
-  - ~50 petabases of SRA indexed
-  - SRA has doubled since: the update (Logan 1.2) will use kmhelpers
 
-::: notes
-2 min. The Logan update is the driver for the cluster build that follows.
-:::
+## Logan
+
+- **Logan 1.0** [@logan2024]
+  - ~50 petabases of SRA indexed in 2024 
+  - Without kmhelpers
+  - <https://logan-search.org/>
+- **Logan 1.2+**
+  - SRA has doubled since
+  - Use kmhelpers
+  - New home : TACC
+  - <https://dev.brc-analytics.org/logan-search>
+
+## Bioswot
 
 # SLURM build (WIP)
 
@@ -288,9 +296,8 @@ Goal: run the Logan-scale update on TACC, a SLURM cluster.
 - **plan prepares, apply runs**: `plan` takes every decision and writes
   `plan.yaml` plus one script folder per shard
 - `apply` only runs these scripts: any of them can run on any node
-- Every script can be run again: complete runs are kept, incomplete
+- **Resume**: complete runs are kept, incomplete
   ones rebuilt
-- A session is planned once; `--replan` to start over
 
 ::: notes
 1.5 min. Work in progress, not released. About 120 files changed.
@@ -317,21 +324,21 @@ kmhelpers build coli_db -o coli_build/ --hpc cluster.yaml
 
 Chunks are sized from `jobs.build`, merges from `jobs.publish`.
 
-## Job graph
+## Workflow
 
 ```
-build.sbatch     array, one task per build job (kmtricks chunks)
-     |           several nodes at once, at most max_parallel
-     v
-publish.sbatch   one job per shard, after its own array tasks:
-     |           check runs, merge, swap in, manage check
-     v
-finish.sbatch    after every job (afterany): check registry,
-                 remove locks, write progress.yaml, send mail
+TODO FIGURE HERE
+
+build     array, one task per build job (kmtricks chunks)
+  |           several nodes at once, at most `max_parallel`
+  v
+publish   once chunks are built:
+  |           check runs, merge, swap in, manage check
+  v
+finish    after every job (afterany): check registry, send mail...
 ```
 
-- `--kill-on-invalid-dep=yes`: a failure never leaves jobs pending
-- `submit.sh` is safe to run again: only what is not done is submitted
+- `submit.sh` only what is not done is submitted (safe to run again)
 
 ::: {.content-hidden}
 ## Features {.smaller}
@@ -364,7 +371,9 @@ idx_g0:
 
 Running the same `build` again resubmits only what failed or was lost.
 
-# Wrap-up
+# Nextflow ?
+
+# Conclusion
 
 ## Status
 
