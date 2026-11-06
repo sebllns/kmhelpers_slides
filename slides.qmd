@@ -16,6 +16,9 @@ format:
     code-line-numbers: false
     chalkboard: false
     include-after-body: assets/theme-toggle.html
+    css: assets/custom.css
+    title-slide-attributes:
+      data-state: no-number
   beamer:
     theme: metropolis
     aspectratio: 169
@@ -25,7 +28,7 @@ format:
     slide-level: 2
 ---
 
-# Context
+# Context {data-state="no-number"}
 
 ## Searching sequences at scale
 
@@ -85,17 +88,11 @@ Sample sizes span several orders of magnitude, so the middle ground matters.
 that minimizes total size.
 :::
 
-# kmhelpers
+# kmhelpers {data-state="no-number"}
 
 ## Why ?
 
-::: {.content-hidden}
-- **Design**: discover samples, count k-mers, group them into sub-indexes
-- **Build**: check files, disk and memory upfront, then build and merge with kmindex
-- **Update**: add samples without recounting the ones already indexed
-- **Query**: FASTA/FASTQ (plain or compressed) to TSV, JSON or YAML, with statistics
-- **Manage**: compress, combine indexes in a single registry
-:::
+
 
 ## Install
 
@@ -108,7 +105,7 @@ pip install kmhelpers && kmhelpers install-deps
 conda install -c conda-forge -c bioconda kmhelpers
 ```
 
-# Workflow
+# Workflow {data-state="no-number"}
 
 ## Overview
 
@@ -117,6 +114,11 @@ conda install -c conda-forge -c bioconda kmhelpers
 ::: notes
 1 min. Design (list, profile, compose), build (plan, apply), query.
 Yellow: new index, green: update.
+- **Design**: discover samples, count k-mers, group them into sub-indexes
+- **Build**: check files, disk and memory upfront, then build and merge with kmindex
+- **Update**: add samples without recounting the ones already indexed
+- **Query**: FASTA/FASTQ (plain or compressed) to TSV, JSON or YAML, with statistics
+- **Manage**: compress, combine indexes in a single registry
 :::
 
 ## Super commands
@@ -263,7 +265,7 @@ YAML pipelines, with `-x` overrides at run time:
 - Global config file (`-C`), environment variables, log file
 - Public Python API covering every command
 
-# Use cases
+# Use cases {data-state="no-number"}
 
 ## Tree of Life, Wellcome Sanger Institute
 
@@ -287,7 +289,7 @@ YAML pipelines, with `-x` overrides at run time:
 
 ## Bioswot
 
-# SLURM build (WIP)
+# SLURM build (WIP) {data-state="no-number"}
 
 ## Branches `dev/v0.8.0*`
 
@@ -371,9 +373,9 @@ idx_g0:
 
 Running the same `build` again resubmits only what failed or was lost.
 
-# Nextflow ?
+# Nextflow ? {data-state="no-number"}
 
-# Conclusion
+# Conclusion {data-state="no-number"}
 
 ## Status
 
@@ -397,4 +399,4 @@ GenOuest, Inria Challenge OmicFinder, ANR-22-PEAE-0005.
 ::: {#refs}
 :::
 
-# Thank you
+# Thank you {data-state="no-number"}

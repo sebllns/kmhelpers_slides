@@ -1,0 +1,5 @@
+/* Per-slide opt-out: # Title {data-state="no-number"}
+   !important needed: reveal.js sets an inline display:block */
+.no-number .slide-number {
+  display: none !important;
+}
