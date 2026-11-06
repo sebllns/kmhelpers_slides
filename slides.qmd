@@ -93,7 +93,7 @@ that minimizes total size.
 
 . . .
 
-CLI (`kmhelpers`, alias `kh`) and a matching Python API, Python >= 3.10, GPL-3.0
+CLI (`kmhelpers`, alias `kh`) and Python API, Python >= 3.10, GPL-3.0
 
 ```bash
 pip install kmhelpers && kmhelpers install-deps
@@ -113,17 +113,36 @@ Yellow: new index, green: update.
 
 ## Three commands
 
-```bash
-# 1. Design: list samples, profile them, compose index definitions
-kmhelpers design /data/sequences -o coli_db/ -n coli
+1. Design: list samples, profile them, compose index definitions
 
-# 2. Build: plan, then apply
+. . .
+
+```bash
+kmhelpers design /data/sequences -o coli_db/ -n coli
+```
+
+Can also be run like:
+`list` -> `profile` -> `compose`
+
+2. Build: plan, then apply
+
+. . .
+
+```bash
 kmhelpers build coli_db/compose/coli/initial/coli.yaml \
     -o coli_build/
+```
 
-# 3. Query with FASTA/FASTQ sequences
+Can also be run like: `plan` -> `apply`.
+
+3. Query with FASTA/FASTQ sequences
+
+. . .
+
+```bash
 kmhelpers query -r coli_build/ -o results/ query.fa
 ```
+. . .
 
 Each step can also be run on its own:
 `list` -> `profile` -> `compose`, then `plan` -> `apply`.

@@ -5,7 +5,6 @@
 *.tex
 *.log
 slides_files/
-.quarto/
-
+.~*
 /.quarto/
 **/*.quarto_ipynb
