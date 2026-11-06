@@ -19,6 +19,7 @@ format:
     css: assets/custom.css
     title-slide-attributes:
       data-state: no-number
+      data-visibility: uncounted
   beamer:
     theme: metropolis
     aspectratio: 169
@@ -28,7 +29,7 @@ format:
     slide-level: 2
 ---
 
-# Context {data-state="no-number"}
+# Context {data-state="no-number" data-visibility="uncounted"}
 
 ## Searching sequences at scale
 
@@ -88,7 +89,7 @@ Sample sizes span several orders of magnitude, so the middle ground matters.
 that minimizes total size.
 :::
 
-# kmhelpers {data-state="no-number"}
+# kmhelpers {data-state="no-number" data-visibility="uncounted"}
 
 ## Why ?
 
@@ -105,7 +106,7 @@ pip install kmhelpers && kmhelpers install-deps
 conda install -c conda-forge -c bioconda kmhelpers
 ```
 
-# Workflow {data-state="no-number"}
+# Workflow {data-state="no-number" data-visibility="uncounted"}
 
 ## Overview
 
@@ -265,7 +266,7 @@ YAML pipelines, with `-x` overrides at run time:
 - Global config file (`-C`), environment variables, log file
 - Public Python API covering every command
 
-# Use cases {data-state="no-number"}
+# Use cases {data-state="no-number" data-visibility="uncounted"}
 
 ## Tree of Life, Wellcome Sanger Institute
 
@@ -289,7 +290,7 @@ YAML pipelines, with `-x` overrides at run time:
 
 ## Bioswot
 
-# SLURM build (WIP) {data-state="no-number"}
+# SLURM build (WIP) {data-state="no-number" data-visibility="uncounted"}
 
 ## Branches `dev/v0.8.0*`
 
@@ -373,9 +374,9 @@ idx_g0:
 
 Running the same `build` again resubmits only what failed or was lost.
 
-# Nextflow ? {data-state="no-number"}
+# Nextflow ? {data-state="no-number" data-visibility="uncounted"}
 
-# Conclusion {data-state="no-number"}
+# Conclusion {data-state="no-number" data-visibility="uncounted"}
 
 ## Status
 
@@ -399,4 +400,4 @@ GenOuest, Inria Challenge OmicFinder, ANR-22-PEAE-0005.
 ::: {#refs}
 :::
 
-# Thank you {data-state="no-number"}
+# Thank you {data-state="no-number" data-visibility="uncounted"}
