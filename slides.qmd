@@ -68,10 +68,6 @@ format:
 1.5 min. A wrong choice at any step wastes compute or yields an oversized index.
 :::
 
-## Why grouping matters
-
-FIGURE
-
 ::: {.content-hidden}
 All Bloom filters of one size are stored as **one matrix** (one sub-index):
 one column per sample, one row per k-mer hash.
@@ -94,6 +90,7 @@ that minimizes total size.
 
 ## Why ?
 
+Why grouping matters ?
 
 
 ## Install
@@ -109,19 +106,6 @@ conda install -c conda-forge -c bioconda kmhelpers
 
 # Workflow {data-state="no-number" data-visibility="uncounted"}
 
-## Overview
-
-![](images/workflow.png){fig-align="center" height="560"}
-
-::: notes
-1 min. Design (list, profile, compose), build (plan, apply), query.
-Yellow: new index, green: update.
-- **Design**: discover samples, count k-mers, group them into sub-indexes
-- **Build**: check files, disk and memory upfront, then build and merge with kmindex
-- **Update**: add samples without recounting the ones already indexed
-- **Query**: FASTA/FASTQ (plain or compressed) to TSV, JSON or YAML, with statistics
-- **Manage**: compress, combine indexes in a single registry
-:::
 
 ## Super commands
 
@@ -211,12 +195,12 @@ Samples of one span share one Bloom filter size.
 
 - validates every sample path, disk space and memory upfront
 - sizes threads and partitions from resource limits
-- writes ready-to-run shell scripts (`--offline` for another machine)
+- writes ready-to-run shell scripts (`--offline` for another machine or testing)
 
 **apply**
 
-- runs kmtricks/kmindex, then merges and registers the sub-indexes
-- filters by span or name, resumes an interrupted build
+- runs kmtricks/kmindex, merges chunks and registers sub-indexes
+- filters name, resumes interrupted build
 
 ## query
 
