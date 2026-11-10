@@ -387,4 +387,6 @@ GenOuest, Inria Challenge OmicFinder, ANR-22-PEAE-0005.
 ::: {#refs}
 :::
 
-# Thank you {data-state="no-number" data-visibility="uncounted"}
+# {data-state="no-number" data-visibility="uncounted"}
+
+![](images/thank_you.png){.nostretch fig-alt="Thank you" fig-align="center" width="60%"}
