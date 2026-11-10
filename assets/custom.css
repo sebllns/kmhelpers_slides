@@ -3,3 +3,22 @@
 .no-number .slide-number {
   display: none !important;
 }
+
+/* Keep the title text readable over the banner */
+.reveal #title-slide {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+}
+
+html.dark .reveal #title-slide {
+  background-color: rgba(135, 133, 133, 0.85);
+}
+
+/* Title text replaced by the letter tiles (top strip of title4.png) */
+.reveal #title-slide h1.title {
+  width: 80%;
+  aspect-ratio: 1650 / 273;
+  margin: 0 auto;
+  font-size: 0;
+  background: url(../images/title4.png) top / 100% auto no-repeat;
+}

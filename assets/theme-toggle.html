@@ -54,8 +54,11 @@
   html.dark #theme-toggle {
     color: #e6e6e6;
   }
-  @media print {
+  @media print, (display-mode: fullscreen) {
     #theme-toggle { display: none; }
+  }
+  :fullscreen #theme-toggle {
+    display: none;
   }
 </style>
 <button id="theme-toggle" type="button" aria-label="Toggle dark mode">Dark</button>
