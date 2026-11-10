@@ -64,7 +64,7 @@ $k = 3$
 
 ![](images/kmers/S1.svg){.nostretch fig-align="center" width="600px" style="aspect-ratio: 403/47; object-fit: cover; object-position: 0 30.7%;"}
 
-| Position | 3-mer | Reverse complement | Canonical | Occurence |
+| Position | 3-mer | Reverse complement | Canonical | Occurrence |
 |---|---|---|---|---|
 | 1 | ATC | GAT | ATC | 1 |
 | 2 | TCA | TGA | TCA | 1 |
@@ -72,7 +72,13 @@ $k = 3$
 | 4 | AAT | ATT | AAT | 1 |
 | 5 | ATG | CAT | ATG | 1 |
 | 6 | TGA | TCA | TCA | 2 |
-| 7 | GAT | ATC | ATC | 2 | 
+| 7 | GAT | ATC | ATC | 2 |
+
+. . .
+
+::: {style="text-align: center;"}
+➡ The total number of occurrences of a k-mer is called its **abundance**.
+:::
 
 
 ## Bloom Filter
