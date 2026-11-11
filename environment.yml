@@ -6,6 +6,7 @@ dependencies:
   - jupyter
   - matplotlib
   - numpy
+  - librsvg
   - pip
   - pip:
       - quarto-cli==1.10.19

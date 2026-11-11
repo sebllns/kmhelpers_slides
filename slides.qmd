@@ -34,15 +34,17 @@ format:
 
 # Context {data-state="no-number" data-visibility="uncounted"}
 
-## Searching sequences at scale
+## Searching sequences at scale {.smaller}
 
 - A **k-mer** is a word of length $k$ taken from a sequence
 - A **Bloom filter** per sample records which k-mers it contains
   - [compact, no false negatives]{.green}, but [false positives possible]{.red}
-- A query reports, per sample, the fraction of its k-mers found
+- A **query** reports, per sample, the fraction of its k-mers found
 - **kmindex** [@lemane2024kmindex] builds and queries such indexes,
   on top of **kmtricks** [@lemane2022]
 - Used to index [~50 petabases]{.green} of SRA data (Logan-Search) [@logan2024]
+
+![](images/thonk.png){.nostretch fig-align="center" width="400px"}
 
 ::: notes
 1 min. Set the vocabulary: k-mer, Bloom filter, sample, query score.
@@ -60,23 +62,29 @@ $k = 3$
 ![](images/kmers/S3.svg){.fragment .fade-in fragment-index=2 width="1000px"}
 :::
 
+. . .
+
+:::  {style="width: fit-content; margin: 0 auto; font-size: 0.7em;"}
+➡ A sequence of length $L$ contains $(L - k + 1)$ k-mers.
+:::
+
 ## Counting k-mers {.smaller}
 
 ![](images/kmers/S1.svg){.nostretch fig-align="center" width="600px" style="aspect-ratio: 403/47; object-fit: cover; object-position: 0 30.7%;"}
 
 | Position | 3-mer | Reverse complement | Canonical | Occurrence |
 |---|---|---|---|---|
-| 1 | ATC | GAT | ATC | 1 |
-| 2 | TCA | TGA | TCA | 1 |
+| 1 | ATC | GAT | [ATC]{style="background-color: #f4d4f4;"} | 1 |
+| 2 | TCA | TGA | [TCA]{style="background-color: #d4f4d4;"} | 1 |
 | 3 | CAA | TTG | CAA | 1 |
 | 4 | AAT | ATT | AAT | 1 |
 | 5 | ATG | CAT | ATG | 1 |
-| 6 | TGA | TCA | TCA | 2 |
-| 7 | GAT | ATC | ATC | 2 |
+| 6 | TGA | TCA | [TCA]{style="background-color: #d4f4d4;"} | 2 |
+| 7 | GAT | ATC | [ATC]{style="background-color: #f4d4f4;"} | 2 |
 
 . . .
 
-::: {style="text-align: center;"}
+:::  {style="width: fit-content; margin: 40px auto;"}
 ➡ The total number of occurrences of a k-mer is called its **abundance**.
 :::
 
@@ -89,18 +97,31 @@ $k = 3$
 
 ## Building is a chain of decisions
 
+::: {.r-stack}
+![](images/build_chain/B1.svg){.fragment .fade-out fragment-index=1 height="480px"}
+
+![](images/build_chain/B2.svg){.fragment .fade-in-then-out fragment-index=1 height="480px"}
+
+![](images/build_chain/B3.svg){.fragment .fade-in-then-out fragment-index=2 height="480px"}
+
+![](images/build_chain/B4.svg){.fragment .fade-in-then-out fragment-index=3 height="480px"}
+
+![](images/build_chain/B5.svg){.fragment .fade-in fragment-index=4 height="480px"}
+:::
+
+. . .
+
+::: {style="text-align: center; font-size: 0.8em;"}
+➡ **kmhelpers automates these decisions**, from raw samples to queries.
+:::
+
+::: notes
+1.5 min. A wrong choice at any step wastes compute or yields an oversized index.
 - size each Bloom filter to the k-mer count of its sample
 - tune kmindex internals (false positives rate, minimizers, partitions, ...)
 - fit each build in the RAM, disk and open files of the machine
 - group samples into sub-indexes: index size vs query speed (cf. Rebecca's work)
 - keep the index up to date as new samples arrive
-
-. . .
-
-**kmhelpers automates these decisions**, from raw samples to queries.
-
-::: notes
-1.5 min. A wrong choice at any step wastes compute or yields an oversized index.
 :::
 
 ::: {.content-hidden}
