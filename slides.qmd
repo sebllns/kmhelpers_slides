@@ -40,7 +40,7 @@ format:
 - A **k-mer** is a word of length $k$ taken from a sequence
 - A **Bloom filter** per sample records which k-mers it contains
   - [compact, no false negatives]{.green}, but [false positives possible]{.red}
-- A **query** reports, per sample, the fraction of its k-mers found
+- A **query** reports the fraction of its k-mers found per sample
 - **kmindex** [@lemane2024kmindex] builds and queries such indexes,
   on top of **kmtricks** [@lemane2022]
 - Used to index [~50 petabases]{.green} of SRA data (Logan-Search) [@logan2024]
@@ -90,11 +90,67 @@ $k = 3$
 :::
 
 
-## Bloom Filter
-  - compact: about $1.44 \log_2(1/p)$ bits per k-mer, independent of $k$
-    (about 10 bits at $p = 1\%$, vs $2k = 62$ bits for $k = 31$) [@broder2004]
-  - [no false negatives]{.green}, but [false positives possible]{.red}
+## Presence/absence matrix
 
+::: {.r-stack}
+![](images/kmers_matrix/S1.svg){.fragment .fade-out fragment-index=1 width="1000px"}
+
+![](images/kmers_matrix/S2.svg){.fragment .fade-in-then-out fragment-index=1 width="1000px"}
+
+![](images/kmers_matrix/S3.svg){.fragment .fade-in-then-out fragment-index=2 width="1000px"}
+
+![](images/kmers_matrix/S4.svg){.fragment .fade-in fragment-index=3 width="1000px"}
+
+:::
+
+## Bloom Filter matrix {.smaller}
+
+:::: {.columns}
+::: {.column width="80%"}
+::: {.incremental}
+- Bloom filter: a **probabilistic** data structure
+- Let $p$ be the false positive rate
+- Storage: $-1/\ln(1-p)$ bits per k-mer [@broder2004]
+  - ~$1/p$ bits per k-mer for small $p$ 
+  - ~10 bits at $10\%$ ; ~4 bits at $25\%$
+- Expectation:
+user asks «Is k-mer `GTA` in sample $S_1$ ?» and wants [yes]{.green} or [no]{.red} answer
+- Reality:
+:::
+
+::: {.r-stack style="margin-top: -60px;"}
+![](images/bloom_filter/S1.svg){.fragment .current-visible width="500px"}
+
+![](images/bloom_filter/S2.svg){.fragment width="500px"}
+:::
+:::
+
+::: {.column width="20%"}
+![](images/kmers_matrix/S6.svg){.nostretch fig-align="center" height="480px"}
+:::
+::::
+
+## Bits per s-mer
+
+
+![](images/bloom_filter/bits_per_smer.png){.nostretch fig-align="center" height="500px"}
+
+. . .
+
+Thanks to claude...
+
+## k-mer or s-mer ?
+
+
+## kmtricks params
+
+![](images/build_chain/kmtricks_params.png){.nostretch fig-align="center" height="500px"}
+
+. . .
+
+::: {style="text-align: center; font-size: 0.8em;"}
+➡ How to tune `kmtricks` build parameters ? 
+:::
 
 ## Building is a chain of decisions
 
