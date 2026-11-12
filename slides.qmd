@@ -114,7 +114,7 @@ $k = 3$
   - ~$1/p$ bits per k-mer for small $p$ 
   - ~10 bits at $10\%$ ; ~4 bits at $25\%$
 - Expectation:
-user asks «Is k-mer `GTA` in sample $S_1$ ?» and wants [yes]{.green} or [no]{.red} answer
+user asks «Is k-mer `XXX` in sample $S_1$ ?» and wants [yes]{.green} or [no]{.red} answer
 - Reality:
 :::
 
@@ -139,8 +139,29 @@ user asks «Is k-mer `GTA` in sample $S_1$ ?» and wants [yes]{.green} or [no]{.
 
 Thanks to claude...
 
-## k-mer or s-mer ?
+## k-mer or s-mer ? {.smaller}
 
+**findere** [@robidou2021findere]: index short **s-mers**, query long **k-mers**, with $k = s + z$
+
+::: {.incremental}
+- Build: insert every **s-mer** of the sample in the Bloom filter
+- Query: a k-mer contains $z + 1$ consecutive s-mers
+  - e.g. $s = 3$, $z = 6$: `ATCAATGAT` $\rightarrow$ `ATC`, `TCA`, `CAA`, `AAT`, `ATG`, `TGA`, `GAT`
+  - k-mer is **absent** as soon as **one** s-mer is missing (100% sure) 
+  - k-mer reported **present** only if **all** s-mers are found (FP rate ?)
+- A false positive needs $z + 1$ s-mer false positives in a row
+  - roughly $p^{z+1}$: $p = 25\%$, $z = 6$ gives $\approx 0.006\%$
+:::
+. . .
+
+:::  {style="width: fit-content; margin: 40px auto;"}
+➡ Improve precision on smaller filters
+:::
+
+::: notes
+1.5 min. findere trades a slightly higher false positive rate per s-mer
+for a much lower one per k-mer. kmindex builds on s-mers and queries with z.
+:::
 
 ## kmtricks params
 
