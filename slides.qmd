@@ -139,6 +139,23 @@ user asks «Is k-mer `XXX` in sample $S_1$ ?» and wants [yes]{.green} or [no]{.
 
 Thanks to claude...
 
+## Precision vs Cost {.smaller}
+
+:::: {.columns}
+::: {.column width="33%"}
+![Toy<br>1 µm, 30 €](images/microscope/toy.jpg){height="350px"}
+:::
+
+::: {.column width="33%"}
+![Nexcope NIB630<br>0.2 µm, 10 k€](images/microscope/NIB630.png){height="350px"}
+:::
+
+::: {.column width="33%"}
+![cryo-TEM (Boulder, Colorado)<br>~0.2 nm, 5 M€](images/microscope/Cryo-TEM.jpg){height="350px"}
+:::
+::::
+
+
 ## k-mer or s-mer ? {.smaller}
 
 **findere** [@robidou2021findere]: index short **s-mers**, query long **k-mers**, with $k = s + z$
@@ -147,8 +164,8 @@ Thanks to claude...
 - Build: insert every **s-mer** of the sample in the Bloom filter
 - Query: a k-mer contains $z + 1$ consecutive s-mers
   - e.g. $s = 3$, $z = 6$: `ATCAATGAT` $\rightarrow$ `ATC`, `TCA`, `CAA`, `AAT`, `ATG`, `TGA`, `GAT`
-  - k-mer is **absent** as soon as **one** s-mer is missing (100% sure) 
-  - k-mer reported **present** only if **all** s-mers are found (FP rate ?)
+  - k-mer is [**absent**]{.red} as soon as **one** s-mer is missing (100% sure) 
+  - k-mer reported [**present**]{.green} only if **all** s-mers are found (FP rate ?)
 - A false positive needs $z + 1$ s-mer false positives in a row
   - roughly $p^{z+1}$: $p = 25\%$, $z = 6$ gives $\approx 0.006\%$
 :::
@@ -222,10 +239,36 @@ that minimizes total size.
 
 # kmhelpers {data-state="no-number" data-visibility="uncounted"}
 
-## Why ?
+## Index structure {.smaller}
 
-Why grouping matters ?
+:::: {.columns}
+::: {.column width="70%"}
+::: {.r-stack}
+![](images/structure/S1.svg){.fragment .fade-out fragment-index=1 width="1000px"}
 
+![](images/structure/S2.svg){.fragment .fade-in-then-out fragment-index=1 width="1000px"}
+
+![](images/structure/S3.svg){.fragment .fade-in-then-out fragment-index=2 width="1000px"}
+
+![](images/structure/S4.svg){.fragment .fade-in fragment-index=3 width="1000px"}
+:::
+:::
+
+::: {.column .fragment fragment-index=3 width="30%"}
+- We build one sub-index per shard, e.g. `Index_G0_S0`
+- All shards in the same group are mergeable
+
+:::
+
+::::
+
+## Pipeline
+
+![](images/kmhelpers/fig_pipeline_mini_animation.svg){.nostretch fig-align="center" height="500px"}
+
+## Pipeline
+
+![](images/kmhelpers/fig_pipeline.svg){.nostretch fig-align="center" height="600px"}
 
 ## Install
 
