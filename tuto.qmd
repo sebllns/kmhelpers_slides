@@ -33,6 +33,17 @@ format:
     slide-level: 2
 ---
 
+## Install
+
+
+CLI (`kmhelpers`, alias `kh`) and Python API, Python >= 3.10, GPL-3.0
+
+```bash
+pip install kmhelpers && kmhelpers install-deps
+conda install -c conda-forge -c bioconda kmhelpers
+```
+
+
 ## Super commands {.smaller}
 
 1. Design: list samples, profile them, compose index definitions
@@ -149,3 +160,26 @@ kmhelpers build coli_db/compose/coli/update/coli.yaml \
 - The layout is reused: no new profile, existing samples not recounted
 - New samples are built, then merged with the current sub-index
 - The previous version stays queryable until the swap
+
+## Tuning groups and partitions
+
+- groups: samples split into $G$ sub-indexes
+- partitions: each matrix split into $P$ files, by minimizer
+
+
+## Automation and API
+
+YAML pipelines, with `-x` overrides at run time:
+
+```yaml
+- apply:
+    workdir: /path/a
+    input_files: [a.yaml]
+- apply:
+    workdir: /path/b
+    input_files: [b.yaml]
+```
+
+- `kmhelpers pipeline my_pipeline.yaml -x threads 16`
+- Global config file (`-C`), environment variables, log file
+- Public Python API covering every command

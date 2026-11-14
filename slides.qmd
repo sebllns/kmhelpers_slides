@@ -210,6 +210,11 @@ for a much lower one per k-mer. kmindex builds on s-mers and queries with z.
 ➡ **kmhelpers automates these decisions**, from raw samples to queries.
 :::
 
+. . .
+
+![](images/ok.png){.absolute bottom=40 right=-100 width="120"}
+
+
 ::: notes
 1.5 min. A wrong choice at any step wastes compute or yields an oversized index.
 - size each Bloom filter to the k-mer count of its sample
@@ -270,39 +275,6 @@ that minimizes total size.
 
 ![](images/kmhelpers/fig_pipeline.svg){.nostretch fig-align="center" height="600px"}
 
-## Install
-
-WAYS TO INSTALL + LINKS
-
-CLI (`kmhelpers`, alias `kh`) and Python API, Python >= 3.10, GPL-3.0
-
-```bash
-pip install kmhelpers && kmhelpers install-deps
-conda install -c conda-forge -c bioconda kmhelpers
-```
-
-## Tuning groups and partitions
-
-- groups: samples split into $G$ sub-indexes
-- partitions: each matrix split into $P$ files, by minimizer
-
-
-## Automation and API
-
-YAML pipelines, with `-x` overrides at run time:
-
-```yaml
-- apply:
-    workdir: /path/a
-    input_files: [a.yaml]
-- apply:
-    workdir: /path/b
-    input_files: [b.yaml]
-```
-
-- `kmhelpers pipeline my_pipeline.yaml -x threads 16`
-- Global config file (`-C`), environment variables, log file
-- Public Python API covering every command
 
 # Use cases {data-state="no-number" data-visibility="uncounted"}
 
