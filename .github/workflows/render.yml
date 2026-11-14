@@ -11,6 +11,8 @@ env:
   EXPORT_HTML: true
   EXPORT_PDF: true
   EXPORT_PPTX: true
+  # Documents to render
+  DOCS: slides tuto
 
 jobs:
   render:
@@ -34,35 +36,34 @@ jobs:
 
       - name: Render revealjs
         if: env.EXPORT_HTML == 'true'
-        run: quarto render slides.qmd --to revealjs -M embed-resources:true
+        run: for d in $DOCS; do quarto render $d.qmd --to revealjs -M embed-resources:true; done
 
       - name: Render beamer
         if: env.EXPORT_PDF == 'true'
-        run: quarto render slides.qmd --to beamer
+        run: for d in $DOCS; do quarto render $d.qmd --to beamer; done
 
       - name: Render pptx
         if: env.EXPORT_PPTX == 'true'
-        run: quarto render slides.qmd --to pptx
+        run: for d in $DOCS; do quarto render $d.qmd --to pptx; done
 
       - uses: actions/upload-artifact@v4
         with:
           name: slides
           path: |
-            slides.html
-            slides.pdf
-            slides.pptx
+            *.html
+            *.pdf
+            *.pptx
           if-no-files-found: error
 
       - name: Prepare Pages site
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           mkdir -p _site
+          files=$(ls $(for d in $DOCS; do echo $d.html $d.pdf $d.pptx; done) 2>/dev/null)
+          cp $files _site/
           if [ -f slides.html ]; then cp slides.html _site/index.html; fi
-          for f in slides.pdf slides.pptx; do
-            if [ -f "$f" ]; then cp "$f" _site/; fi
-          done
           # Public bundle of all built outputs
-          zip -j _site/slides.zip $(ls slides.html slides.pdf slides.pptx 2>/dev/null)
+          zip -j _site/slides.zip $files
 
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
