@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" pages="7">
   <diagram name="Page-1" id="OuNI_mmCWZFzbbIVTQXP">
-    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="0" arrows="0" fold="1" pageScale="1" pageWidth="1100" pageHeight="850" math="1" shadow="0">
+    <mxGraphModel dx="1347" dy="744" grid="1" gridSize="10" guides="1" tooltips="1" connect="0" arrows="0" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="1" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -238,7 +238,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="R0Vkhep3VRN5z5bNG_lD" name="Page-2">
-    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="0" arrows="0" fold="1" pageScale="1" pageWidth="800" pageHeight="600" math="1" shadow="0">
+    <mxGraphModel dx="1214" dy="670" grid="1" gridSize="10" guides="1" tooltips="1" connect="0" arrows="0" fold="1" page="1" pageScale="1" pageWidth="800" pageHeight="600" math="1" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -256,18 +256,6 @@
         </mxCell>
         <mxCell id="ILwrexCV3i0EtfYGPpLR-6" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;fontFamily=Indie Flower;sketch=1;curveFitting=1;jiggle=2;shadow=1;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DIndie%2BFlower;fontSize=32;" value="S1" vertex="1">
           <mxGeometry height="70" width="110" x="180" y="330" as="geometry" />
-        </mxCell>
-        <mxCell id="ILwrexCV3i0EtfYGPpLR-7" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Indie Flower;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DIndie%2BFlower;fontSize=28;" value="Your dataset as Bloom Filters" vertex="1">
-          <mxGeometry height="90" width="180" x="460" y="40" as="geometry" />
-        </mxCell>
-        <mxCell id="ILwrexCV3i0EtfYGPpLR-10" edge="1" parent="1" source="ILwrexCV3i0EtfYGPpLR-7" style="endArrow=open;html=1;rounded=1;exitX=-0.005;exitY=0.231;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1.005;entryY=0.418;entryDx=0;entryDy=0;entryPerimeter=0;sketch=1;curveFitting=1;jiggle=2;curved=0;endFill=0;endSize=18;" target="ILwrexCV3i0EtfYGPpLR-2" value="">
-          <mxGeometry height="50" relative="1" width="50" x="-0.2139" as="geometry">
-            <Array as="points">
-              <mxPoint x="440" y="60" />
-            </Array>
-            <mxPoint x="420" y="120" as="sourcePoint" />
-            <mxPoint x="400" y="100" as="targetPoint" />
-          </mxGeometry>
         </mxCell>
         <mxCell id="ILwrexCV3i0EtfYGPpLR-12" edge="1" parent="1" source="ILwrexCV3i0EtfYGPpLR-2" style="endArrow=open;html=1;rounded=1;exitX=0.204;exitY=0.904;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.547;entryY=-0.011;entryDx=0;entryDy=0;entryPerimeter=0;sketch=1;curveFitting=1;jiggle=2;curved=0;endFill=0;endSize=18;" target="ILwrexCV3i0EtfYGPpLR-3" value="">
           <mxGeometry height="50" relative="1" width="50" x="-0.1071" as="geometry">
@@ -305,6 +293,44 @@
             <mxPoint x="81" y="342" as="targetPoint" />
           </mxGeometry>
         </mxCell>
+        <mxCell id="-G1UjY3pp-xdapClngqB-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;fontFamily=Indie Flower;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DIndie%2BFlower;fontSize=28;" value="One Group perBloom Filter size" vertex="1">
+          <mxGeometry height="90" width="144" x="506" y="159" as="geometry" />
+        </mxCell>
+        <mxCell id="-G1UjY3pp-xdapClngqB-2" edge="1" parent="1" source="-G1UjY3pp-xdapClngqB-1" style="endArrow=open;html=1;rounded=1;exitX=-0.005;exitY=0.231;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1.005;entryY=0.418;entryDx=0;entryDy=0;entryPerimeter=0;sketch=1;curveFitting=1;jiggle=2;curved=0;endFill=0;endSize=18;" value="">
+          <mxGeometry height="50" relative="1" width="50" x="-0.2139" as="geometry">
+            <Array as="points">
+              <mxPoint x="486" y="179" />
+            </Array>
+            <mxPoint x="466" y="239" as="sourcePoint" />
+            <mxPoint x="427" y="217" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-G1UjY3pp-xdapClngqB-3" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;fontFamily=Indie Flower;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DIndie%2BFlower;fontSize=28;" value="Big Groups may be split into shards" vertex="1">
+          <mxGeometry height="90" width="180" x="375" y="297" as="geometry" />
+        </mxCell>
+        <mxCell id="-G1UjY3pp-xdapClngqB-4" edge="1" parent="1" source="-G1UjY3pp-xdapClngqB-3" style="endArrow=open;html=1;rounded=1;exitX=-0.005;exitY=0.231;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1.005;entryY=0.418;entryDx=0;entryDy=0;entryPerimeter=0;sketch=1;curveFitting=1;jiggle=2;curved=0;endFill=0;endSize=18;" value="">
+          <mxGeometry height="50" relative="1" width="50" x="-0.2139" as="geometry">
+            <Array as="points">
+              <mxPoint x="356" y="317" />
+            </Array>
+            <mxPoint x="336" y="377" as="sourcePoint" />
+            <mxPoint x="297" y="355" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-G1UjY3pp-xdapClngqB-5" parent="0" value="1" />
+        <mxCell id="ILwrexCV3i0EtfYGPpLR-7" parent="-G1UjY3pp-xdapClngqB-5" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;fontFamily=Indie Flower;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DIndie%2BFlower;fontSize=28;" value="Your dataset as Bloom Filters" vertex="1">
+          <mxGeometry height="90" width="180" x="460" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ILwrexCV3i0EtfYGPpLR-10" edge="1" parent="-G1UjY3pp-xdapClngqB-5" source="ILwrexCV3i0EtfYGPpLR-7" style="endArrow=open;html=1;rounded=1;exitX=-0.005;exitY=0.231;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1.005;entryY=0.418;entryDx=0;entryDy=0;entryPerimeter=0;sketch=1;curveFitting=1;jiggle=2;curved=0;endFill=0;endSize=18;" target="ILwrexCV3i0EtfYGPpLR-2" value="">
+          <mxGeometry height="50" relative="1" width="50" x="-0.2139" as="geometry">
+            <Array as="points">
+              <mxPoint x="440" y="60" />
+            </Array>
+            <mxPoint x="420" y="120" as="sourcePoint" />
+            <mxPoint x="400" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-G1UjY3pp-xdapClngqB-6" parent="0" value="2" />
       </root>
     </mxGraphModel>
   </diagram>
@@ -749,7 +775,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="71UOBwS3eWwztNHqqPbz" name="Page-7">
-    <mxGraphModel dx="648" dy="415" grid="1" gridSize="10" guides="1" tooltips="1" connect="0" arrows="0" fold="1" page="1" pageScale="1" pageWidth="800" pageHeight="600" math="1" shadow="0">
+    <mxGraphModel dx="1347" dy="744" grid="1" gridSize="10" guides="1" tooltips="1" connect="0" arrows="0" fold="1" page="1" pageScale="1" pageWidth="800" pageHeight="600" math="1" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
