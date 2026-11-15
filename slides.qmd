@@ -287,7 +287,7 @@ that minimizes total size.
 :::: {.columns}
 ::: {.column width="75%"}
 
-![Logan 1.2: non-genomic profile](images/build/histogram_non_genomic.png){}
+![Logan 1.2: non-genomic data profile](images/build/histogram_non_genomic.png){}
 
 :::
 
@@ -296,7 +296,9 @@ that minimizes total size.
 2) profile: group
 3) compose: shard
 
-![](images/structure/S4.svg){fig-align="center"}
+::: {.crop-s4}
+![](images/structure/S4.svg)
+:::
 :::
 ::::
 ## Build constraints

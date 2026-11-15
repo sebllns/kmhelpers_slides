@@ -22,3 +22,21 @@ html.dark .reveal #title-slide {
   font-size: 0;
   background: url(../images/title4.png) top / 100% auto no-repeat;
 }
+/* Crop structure/S4.svg (800x600) to its content box: x=15 y=53 w=422 h=357.
+   Margin percentages are relative to the wrapper width. */
+.reveal .crop-s4 {
+  aspect-ratio: 422 / 357;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.reveal .crop-s4 p {
+  margin: 0;
+}
+
+.reveal .crop-s4 img {
+  width: 189.57%;
+  max-width: none;
+  max-height: none;
+  margin: -12.56% 0 0 -3.55%;
+}
