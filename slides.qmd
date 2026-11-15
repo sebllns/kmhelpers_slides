@@ -244,7 +244,7 @@ that minimizes total size.
 
 # kmhelpers {data-state="no-number" data-visibility="uncounted"}
 
-## Index structure {.smaller}
+## Index structure
 
 :::: {.columns}
 ::: {.column width="70%"}
@@ -265,6 +265,12 @@ that minimizes total size.
 
 :::
 
+. . .
+
+::: {style="text-align: center; font-size: 1.2em;"}
+➡ How is it built?
+:::
+
 ::::
 
 ## Pipeline
@@ -274,6 +280,79 @@ that minimizes total size.
 ## Workflow
 
 ![](images/kmhelpers/fig_pipeline.svg){.nostretch fig-align="center" height="600px"}
+
+
+## Design {.smaller}
+
+:::: {.columns}
+::: {.column width="75%"}
+
+![Logan 1.2: non-genomic profile](images/build/histogram_non_genomic.png){}
+
+:::
+
+::: {.column width="25%"}
+1) list: sample
+2) profile: group
+3) compose: shard
+
+![](images/structure/S4.svg){fig-align="center"}
+:::
+::::
+## Build constraints
+
+
+::: {.r-stack}
+![](images/resources/S1.svg){.nostretch .fragment .fade-out fragment-index=1 fig-align="center" height="700px"}
+
+![](images/resources/S2.svg){.nostretch .fragment .fade-in-then-out fragment-index=1 fig-align="center" height="700px"}
+
+![](images/resources/S3.svg){.nostretch .fragment .fade-in-then-out fragment-index=2 fig-align="center" height="700px"}
+
+![](images/resources/S4.svg){.nostretch .fragment .fade-in-then-out fragment-index=3 fig-align="center" height="700px"}
+
+![](images/resources/S5.svg){.nostretch .fragment .fade-in-then-out fragment-index=4 fig-align="center" height="700px"}
+
+![](images/resources/S6.svg){.nostretch .fragment .fade-in-then-out fragment-index=5 fig-align="center" height="700px"}
+
+![](images/resources/S7.svg){.nostretch .fragment .fade-in-then-out fragment-index=6 fig-align="center" height="700px"}
+
+![](images/resources/S8.svg){.nostretch .fragment .fade-in-then-out fragment-index=7 fig-align="center" height="700px"}
+
+![](images/resources/S9.svg){.nostretch .fragment .fade-in-then-out fragment-index=8 fig-align="center" height="700px"}
+
+![](images/resources/S10.svg){.nostretch .fragment .fade-in fragment-index=9 fig-align="center" height="700px"}
+
+:::
+
+
+## How to build a sub-index ?
+
+
+::: {.r-stack}
+![](images/structure/S4.svg){.nostretch .fragment .fade-out fragment-index=1 fig-align="center" height="700px"}
+
+![](images/build/S1.svg){.nostretch .fragment .fade-in fragment-index=1 fig-align="center" height="700px"}
+
+:::
+
+
+
+## Matrix
+
+
+![](images/bloom_filter/bf_matrix.svg){.nostretch fig-align="center" height="600px"}
+
+
+## Query
+
+## Update
+
+- Design
+  1. list
+  2. ~~profile~~
+  3. compose
+- 
 
 
 # Use cases {data-state="no-number" data-visibility="uncounted"}
@@ -316,7 +395,9 @@ Goal: run the Logan-scale update on TACC, a SLURM cluster.
 1.5 min. Work in progress, not released. About 120 files changed.
 :::
 
-## Cluster file
+## Slurm build
+
+::: {.incremental}
 
 ```yaml
 type: slurm
@@ -334,57 +415,13 @@ jobs:                    # resources per kind of job
 ```bash
 kmhelpers build coli_db -o coli_build/ --hpc cluster.yaml
 ```
-
-Chunks are sized from `jobs.build`, merges from `jobs.publish`.
-
-## Workflow
-
-```
-TODO FIGURE HERE
-
-build     array, one task per build job (kmtricks chunks)
-  |           several nodes at once, at most `max_parallel`
-  v
-publish   once chunks are built:
-  |           check runs, merge, swap in, manage check
-  v
-finish    after every job (afterany): check registry, send mail...
-```
-
-- `submit.sh` only what is not done is submitted (safe to run again)
-
-::: {.content-hidden}
-## Features {.smaller}
-
-- `--hpc FILE`: plan, generate the sbatch files, submit, exit
-- `--chunks-per-job N`: chunks of a shard grouped into one job
-- `apply --status [--sp]`: per shard and step, `SUCCESS`, `FAILED`,
-  `RUNNING`, `PENDING`, `LOST` (with the SLURM reason), `CANCELLED`
-- `apply --task PATTERN`: live RAM and kmtricks phase of a step
-- `apply --cancel`: `scancel` the jobs of the plan
-- `--notify EMAIL --notify-level shard`: one mail per shard
-- `manage check`: positive and negative queries before publishing
-- Stats per run and shard: time, peak RAM and disk, FP rate
-:::
-
-## Following a build
-
-```bash
-kmhelpers apply coli_db -o coli_build/ --status --sp
-```
-
-```yaml
-idx_g0:
-  idx_g0_initial_chunk0: SUCCESS
-  idx_g0_initial_chunk1: FAILED (log: logs/idx_g0/...chunk1.log)
-  idx_g0_initial_chunk2: RUNNING (job 18001_2, node12, since 10:02)
-  idx_g0_initial_chunk3: PENDING (job 18001_3)
-  publish: PENDING (job 18002)
-```
-
-Running the same `build` again resubmits only what failed or was lost.
-
-# Nextflow ? {data-state="no-number" data-visibility="uncounted"}
+::: {style="font-size: 0.8em;"}
+- Chunks are sized from `jobs.build`, merges from `jobs.publish`.
+- Checkpoint: resubmit only what is not done
+- Real-time monitoring
+- Nextflow ?
+::: 
+::: 
 
 # Conclusion {data-state="no-number" data-visibility="uncounted"}
 
@@ -400,6 +437,7 @@ Running the same `build` again resubmits only what failed or was lost.
 
 - Code: <https://github.com/sebllns/kmhelpers>
 - Docs: <https://sebllns.github.io/kmhelpers/>
+- Omicfinder group on Github: <https://github.com/omicfinder>
 - Cite: @kmhelpers
 
 Thanks to Téo Lemane (kmindex), Pierre Peterlongo, Kamil S. Jaron,
