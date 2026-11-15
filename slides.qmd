@@ -35,6 +35,16 @@ format:
 
 # Context {data-state="no-number" data-visibility="uncounted"}
 
+## Objective: query
+
+Can «`ACTGAGTTTTGCATCCT...`» be found in any of the ~30 million SRA accessions?
+
+- 100% of the sequence is found in `acc_1`
+- 22% of the sequence is found in `acc_2`
+...
+
+![](images/thonk.png){.nostretch fig-align="center" width="400px"}
+
 ## Searching sequences at scale {.smaller}
 
 - A **k-mer** is a word of length $k$ taken from a sequence
@@ -45,7 +55,6 @@ format:
   on top of **kmtricks** [@lemane2022]
 - Used to index [~50 petabases]{.green} of SRA data (Logan-Search) [@logan2024]
 
-![](images/thonk.png){.nostretch fig-align="center" width="400px"}
 
 ::: notes
 1 min. Set the vocabulary: k-mer, Bloom filter, sample, query score.
@@ -296,13 +305,36 @@ that minimizes total size.
 2) profile: group
 3) compose: shard
 
-::: {.crop-s4}
+::: {.crop style="--x: 15; --y: 53; --w: 422; --h: 357;"}
 ![](images/structure/S4.svg)
 :::
 :::
 ::::
-## Build constraints
 
+
+## How to build a sub-index ?
+
+
+:::: {.columns}
+::: {.column width="50%"}
+
+::: {.crop style="--x: 15; --y: 52; --w: 600; --h: 480;"}
+::: {.r-stack}
+![](images/structure/S4.svg){.nostretch .fragment .fade-out fragment-index=1}
+
+![](images/build/S1.svg){.nostretch .fragment .fade-in fragment-index=1}
+:::
+:::
+
+:::
+
+::: {.column .fragment width="50%"}
+
+![](images/build/S2.svg)
+:::
+::::
+
+## Build under constraints
 
 ::: {.r-stack}
 ![](images/resources/S1.svg){.nostretch .fragment .fade-out fragment-index=1 fig-align="center" height="700px"}
@@ -328,33 +360,46 @@ that minimizes total size.
 :::
 
 
-## How to build a sub-index ?
-
-
-::: {.r-stack}
-![](images/structure/S4.svg){.nostretch .fragment .fade-out fragment-index=1 fig-align="center" height="700px"}
-
-![](images/build/S1.svg){.nostretch .fragment .fade-in fragment-index=1 fig-align="center" height="700px"}
-
-:::
-
-
-
 ## Matrix
 
 
 ![](images/bloom_filter/bf_matrix.svg){.nostretch fig-align="center" height="600px"}
 
 
-## Query
+## How to update an existing index ? {.smaller}
 
-## Update
+:::: {.columns}
+::: {.column width="60%"}
 
+![](images/kmhelpers/fig_pipeline.svg){.nostretch fig-align="center" height="600px"}
+
+:::
+
+::: {.column width="40%"}
 - Design
   1. list
   2. ~~profile~~
-  3. compose
-- 
+  3. compose: dedicated session
+
+     ```text
+     COMPOSE_DIR/
+     ├── INITIAL/
+     └── UPDATE/
+     ```
+
+. . .
+
+- Build
+  - same + shard merging
+  - shard and its update coexist briefly (x2 storage)
+
+. . .
+
+- Query
+  - unchanged
+:::
+::::
+
 
 
 # Use cases {data-state="no-number" data-visibility="uncounted"}
@@ -380,6 +425,21 @@ that minimizes total size.
   - <https://dev.brc-analytics.org/logan-search>
 
 ## Bioswot
+
+| NAME | Samples | Status | Size |
+|---|---|---|---|
+| `16S` | 169 | done | 2.3 GB |
+| `18S` | 170 | done | <1 GB |
+| `metaG` | 171 | wip |  |
+| `metavirus` | 53 | done | 74 GB |
+| `metaT_euk` | 98 | wip |  |
+| `metaT_prok` | 43 | wip |  |
+
+. . .
+
+::: {style="text-align: center; font-size: 1.0em;"}
+➡ 3 abundance bits, $2^3=8$ classes
+:::
 
 # SLURM build (WIP) {data-state="no-number" data-visibility="uncounted"}
 
@@ -427,13 +487,67 @@ kmhelpers build coli_db -o coli_build/ --hpc cluster.yaml
 
 # Conclusion {data-state="no-number" data-visibility="uncounted"}
 
-## Status
+## Glossary {.smaller .scrollable}
+
+:::: {.columns .glossary style="font-size: 0.7em;"}
+::: {.column width="50%"}
+**k-mers and Bloom filters**
+
+| Term | Definition |
+|---|---------|
+| **k-mer** | word of length $k$ taken from a sequence |
+| **canonical k-mer** | smallest of a k-mer and its reverse complement |
+| **abundance** | number of occurrences of a k-mer in a sample |
+| **sample** | one input file (e.g. one SRA run), one column of the index |
+| **Bloom filter** | probabilistic set of the k-mers of a sample, no false negatives |
+| **false positive rate** ($p$) | probability that an absent k-mer is reported present |
+| **s-mer** (findere) | word of length $s = k - z$ inserted at build; a k-mer is present if all its $z + 1$ s-mers are |
+:::
+
+::: {.column width="50%"}
+**Index structure**
+
+| Term | Definition |
+|---|---------|
+| **group** | samples sharing the same Bloom filter size, hence mergeable (`profile`) |
+| **shard** | part of a group built as one sub-index, e.g. `Index_G0_S0` (`compose`) |
+| **chunk** | samples of one `kmindex build` call, merged into their shard |
+| **sub-index** | one kmindex index directory: a bit matrix, one row per hash, one column per sample |
+| **partition** | one of the $P$ slices of the hash space of a sub-index, one file |
+| **global index** | registry of named sub-indexes queried together (`kmindex register`) |
+:::
+::::
+
+::: {.content-hidden}
+The global index is a set of sub-indexes. A sub-index is a folder that contains bit matrix with one row per hash value and one column
+per sample, and it is split along both axes. Along the sample axis (columns, "vertical
+partitioning" in database terms) the objects are, from the smallest to the largest set of
+samples:
+
+| Term | Short | Definition | Where it is decided |
+| --- | --- | --- | --- |
+| sample | one input file (one SRA run), one column | one sequencing run (one SRA accession, SRR/ERR/DRR) given as one input file (its Logan unitig FASTA), one line of the FOF, one column (one bit per k-mer row) of the index; "sample" is the kmtricks and kmindex term (`--fof`, sample ids) | input |
+| span | size class of samples (same Bloom size) | class of samples by k-mer count: $\text{span} = \lfloor \log_\beta K_{sample} \rfloor$ with base $\beta$ (2 by default), so $\beta^{span} \le K_{sample} < \beta^{span+1}$; all samples of a span get the same Bloom size $f(p) \beta^{span+1}$, hence the same index row length | kmhelpers `SpanManager` (`core/bloom_filter.py:81-112`) |
+| group (shard) | spans merged into one sub-index | set of consecutive spans whose samples end up in one merged sub-index, with the Bloom size of its largest span; the unit of the index design; after the merge, one group = deliverable unit = one sub-index | kmhelpers layout / profile (`merge_name`, `pipeline/composer.py:76-100, 170`), the calculator |
+| chunk | samples of one `kmindex build` | the samples of one `kmindex build` call (one kmtricks run, $S$ samples); a group is built as $C$ chunks because of the open-file and RAM limits of one build; all chunks of a group share Bloom size, $P$ and repartition (`--static-repart` or `--from`) so that they can be merged | `kmhelpers build` or `kmhelpers plan` |
+| sub-index | one registered kmindex index directory | one kmindex index directory (contains kmtricks output, `matrices/matrix_<p>.cmbf`) registered under a name in a global index; the unit that `kmindex query` processes one after the other; a chunk is a sub-index until it is merged, a merged group is a sub-index | `kmindex build`, `kmindex merge` |
+| (global) index | registry of named sub-indexes | the registry directory given to `-i` (`kmindex register`), a set of named sub-indexes; `-n` selects which ones a query reads. | `kmindex register` |
+
+Along the hash axis (rows, "horizontal partitioning"), inside one sub-index:
+
+| Term | Short | Definition | Where it is decided |
+| --- | --- | --- | --- |
+| partition | one of the $P$ hash-space slices, one file | one of the $P$ slices of the hash space of a sub-index: kmtricks assigns each k-mer, by its minimizer, to a partition (`--nb-partitions`, repartition table `repartition_gatb/`), and each partition is one file of $w = 64 \lceil \lceil B/P \rceil / 64 \rceil$ bits per sample (`hash.hpp:31-38`, `matrices/matrix_<p>.cmbf`). All samples of a sub-index share the same partitions. It is the unit of parallelism and of file handling for the count and merge stages of kmtricks (open files, RAM), for `kmindex merge` (one thread per partition) and for `kmindex query` (only the partitions hit by the query are mapped) | `kmindex build`, fixed by `--static-repart` or `--from` |
+:::
+
+## `kmhelpers` status
 
 - **v0.7.3** PyPI, Bioconda, docs, JOSS paper ([**accepted**]{.green})
 - **v0.7.4** abundance indexes, paired reads, automatic group count
 - **v0.8.0** (in development)
   - shard and chunk budgets, from Logan
   - SLURM build, being tested on TACC
+  - small additional features like ignore file
 
 ## Links
 

@@ -22,21 +22,27 @@ html.dark .reveal #title-slide {
   font-size: 0;
   background: url(../images/title4.png) top / 100% auto no-repeat;
 }
-/* Crop structure/S4.svg (800x600) to its content box: x=15 y=53 w=422 h=357.
+/* Crop images to the box (--x, --y, --w, --h) of a --cw wide canvas.
    Margin percentages are relative to the wrapper width. */
-.reveal .crop-s4 {
-  aspect-ratio: 422 / 357;
+.reveal .crop {
+  --cw: 800;
+  aspect-ratio: var(--w) / var(--h);
   overflow: hidden;
   margin: 0 auto;
 }
 
-.reveal .crop-s4 p {
+.reveal .crop p {
   margin: 0;
 }
 
-.reveal .crop-s4 img {
-  width: 189.57%;
+.reveal .crop img {
+  width: calc(100% * var(--cw) / var(--w));
   max-width: none;
   max-height: none;
-  margin: -12.56% 0 0 -3.55%;
+  margin: calc(-100% * var(--y) / var(--w)) 0 0 calc(-100% * var(--x) / var(--w));
+}
+
+/* Outer border of the glossary tables, follows the theme text color */
+.reveal .glossary table {
+  border: 1px solid currentColor;
 }
