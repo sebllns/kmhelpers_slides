@@ -112,6 +112,14 @@ $k = 3$
 
 :::
 
+. . .
+
+
+::: {style="text-align: center; font-size: 0.5em; margin-top: -200px; position: relative;"}
+➡ $4^{25} \approx 10^{15}$ (peta)
+:::
+
+
 ## Bloom Filter matrix {.smaller}
 
 :::: {.columns}
@@ -334,6 +342,12 @@ that minimizes total size.
 :::
 ::::
 
+. . .
+
+::: {style="text-align: right; font-size: 0.6em;"}
+\+ register in `index.json`
+:::
+
 ## Build under constraints
 
 ::: {.r-stack}
@@ -410,7 +424,56 @@ that minimizes total size.
   - **Objective**: detect sample swaps (long-read and Hi-C data from different specimens)
   - **~7.5k samples**, raw reads and assemblies mixed
   - index should be updated with new data; shaped the design of [**kmhelpers**]{.blue}
+- Collaborator: Kamil S. Jaron
 
+
+## Bioswot 
+
+| NAME | Samples | Status | Size |
+|---|---|---|---|
+| `16S` | 169 | done | 2.3 GB |
+| `18S` | 170 | done | <1 GB |
+| `metaG` | 171 | wip |  |
+| `metavirus` | 53 | done | 74 GB |
+| `metaT_euk` | 98 | wip |  |
+| `metaT_prok` | 43 | wip |  |
+
+::: {style="text-align: center; font-size: 0.8em;"}
+- Collaborators: Magali Lescot, Nolan Lezzoche, Julien Lecubin
+:::
+
+. . .
+
+::: {style="text-align: center; font-size: 1.0em;"}
+➡ 3 abundance bits, $2^3=8$ classes
+:::
+
+## Indexing with abundance {.smaller}
+
+:::: {.columns}
+::: {.column width="50%"}
+| Class | Abundance range |
+|:---:|:---:|
+| 0 | 0 (absent or filtered) |
+| 1 | [1, 2) |
+| 2 | [2, 4) |
+| 3 | [4, 8) |
+| 4 | [8, 16) |
+| 5 | [16, 32) |
+| 6 | [32, 64) |
+| 7 | $\geq$ 64 |
+:::
+
+::: {.column width="50%"}
+- $w = 3$ bits per cell
+- Log2 binning: $c = \min(\lfloor \log_2 a \rfloor + 1,\ 2^w - 1)$
+- Index size grows linearly with $w$
+
+. . .
+
+- Query returns an abundance class, not an exact count
+:::
+::::
 
 ## Logan
 
@@ -424,21 +487,68 @@ that minimizes total size.
   - New home : TACC
   - <https://dev.brc-analytics.org/logan-search>
 
-## Bioswot
+- Collaborators: Anton Nekrutenko, Kelsey Beavers
 
-| NAME | Samples | Status | Size |
-|---|---|---|---|
-| `16S` | 169 | done | 2.3 GB |
-| `18S` | 170 | done | <1 GB |
-| `metaG` | 171 | wip |  |
-| `metavirus` | 53 | done | 74 GB |
-| `metaT_euk` | 98 | wip |  |
-| `metaT_prok` | 43 | wip |  |
+## Peak RAM when merging chunks
+
+![](images/expe_merge/strategies.png){.nostretch fig-align="center" height="500px"}
 
 . . .
 
 ::: {style="text-align: center; font-size: 1.0em;"}
-➡ 3 abundance bits, $2^3=8$ classes
+➡ What is the best merging strategy ?
+:::
+
+::: notes
+- Single merge (1 merge per run, for k = 4 to 128): one call merging k sub-indexes at once. Shows the cost of one merge as the number of inputs grows.
+- tree:8 (19 merges per run x 3 replicates): merge by groups of 8, level by level (128 → 16 → 2 → 1).
+- tree:2 (127 merges per run x 3 replicates): merge two by two, level by level (128 → 64 → ... → 1).
+- incr (127 merges per run x 3 replicates): add one sub-index at a time to a growing index.
+- 3 replicates each
+:::
+
+## Merging strategies: time vs memory
+
+:::: {.columns}
+::: {.column width="30%"}
+![](images/expe_merge/strategies.png)
+:::
+::: {.column width="70%"}
+![](images/expe_merge/strategies_cost.png)
+:::
+::::
+
+. . .
+
+::: {style="text-align: center; font-size: 1.0em;"}
+➡ tree:8 is a good trade-off:   
+~9x less RAM than a flat merge  
+but ~3x slower
+:::
+
+. . . 
+
+::: {style="text-align: center; font-size: 1.0em;"}
+➡ Merge in **bundles**, sized to the available RAM
+:::
+
+## Predicting merge peak RAM
+
+![](images/expe_merge/spans_ram.png){.nostretch fig-align="center" height="600px"}
+
+
+## Upper bound on peak RAM
+
+![](images/expe_merge/samples_ram.png){.nostretch fig-align="center" height="420px"}
+
+. . .
+
+::: {style="text-align: center; font-size: 0.8em;"}
+➡ Max inputs per merge: $k \le \dfrac{8M}{B\,(s + 7)}$
+:::
+
+::: {style="text-align: center; font-size: 0.6em;"}
+$M$ = available RAM, $B$ = Bloom filter size, $s$ = samples per input sub-index
 :::
 
 # SLURM build (WIP) {data-state="no-number" data-visibility="uncounted"}
@@ -549,15 +659,30 @@ Along the hash axis (rows, "horizontal partitioning"), inside one sub-index:
   - SLURM build, being tested on TACC
   - small additional features like ignore file
 
-## Links
+## Dependencies
 
-- Code: <https://github.com/sebllns/kmhelpers>
-- Docs: <https://sebllns.github.io/kmhelpers/>
-- Omicfinder group on Github: <https://github.com/omicfinder>
+- kmindex: <https://github.com/tlemane/kmindex>
+- kmtricks: <https://github.com/tlemane/kmtricks>
+- ntcard: <https://github.com/BirolLab/ntCard>
+
+. . .
+
+::: {style="text-align: center; font-size: 1.0em;"}
+➡ Can be automatically or manually installed
+:::
+
+
+## Links {.smaller}
+
+- **Code:** <https://github.com/sebllns/kmhelpers>
+- **Docs:** <https://sebllns.github.io/kmhelpers/>
+- Bioconda: <https://anaconda.org/channels/bioconda/packages/kmhelpers>
+- Pypi: <https://pypi.org/project/kmhelpers/>
+- **Omicfinder** group on Github: <https://github.com/omicfinder>
 - Cite: @kmhelpers
 
-Thanks to Téo Lemane (kmindex), Pierre Peterlongo, Kamil S. Jaron,
-GenOuest, Inria Challenge OmicFinder, ANR-22-PEAE-0005.
+Thanks to Inria Challenge OmicFinder, ANR-22-PEAE-0005, Pierre Peterlongo, Téo Lemane, 
+GenOuest, TACC.
 
 ## References {.smaller .scrollable}
 
