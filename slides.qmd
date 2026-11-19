@@ -49,7 +49,7 @@ Can «`ACTGAGTTTTGCATCCT...`» be found in any of the ~30 million SRA accessions
 
 - A **k-mer** is a word of length $k$ taken from a sequence
 - A **Bloom filter** per sample records which k-mers it contains
-  - [compact, no false negatives]{.green}, but [false positives possible]{.red}
+  - [efficient, no false negatives]{.green}, but [false positives possible]{.red}
 - A **query** reports the fraction of its k-mers found per sample
 - **kmindex** [@lemane2024kmindex] builds and queries such indexes,
   on top of **kmtricks** [@lemane2022]
