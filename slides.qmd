@@ -27,6 +27,7 @@ format:
   beamer:
     theme: metropolis
     aspectratio: 169
+    slide-level: 2
     pdf-engine: xelatex
     keep-tex: true
   pptx:
@@ -676,6 +677,7 @@ Along the hash axis (rows, "horizontal partitioning"), inside one sub-index:
 
 - **Code:** <https://github.com/sebllns/kmhelpers>
 - **Docs:** <https://sebllns.github.io/kmhelpers/>
+- **Tuto** <https://sebllns.github.io/kmhelpers_slides/tuto>
 - Bioconda: <https://anaconda.org/channels/bioconda/packages/kmhelpers>
 - Pypi: <https://pypi.org/project/kmhelpers/>
 - **Omicfinder** group on Github: <https://github.com/omicfinder>

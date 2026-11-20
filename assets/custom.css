@@ -1,6 +1,11 @@
 /* Per-slide opt-out: # Title {data-state="no-number"}
    !important needed: reveal.js sets an inline display:block */
-.no-number .slide-number {
+.no-number .slide-number:not(.slide-number-pdf) {
+  display: none !important;
+}
+
+/* ?print-pdf: the state class stays on the viewport, so opt out per page */
+.pdf-page:has(> section[data-state~="no-number"]) .slide-number-pdf {
   display: none !important;
 }
 
