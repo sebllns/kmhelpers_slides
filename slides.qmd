@@ -9,6 +9,7 @@ bibliography: references.bib
 filters:
   - assets/color.lua
   - assets/stack.lua
+  - assets/size.lua
 format:
   revealjs:
     theme: simple
@@ -678,6 +679,7 @@ Along the hash axis (rows, "horizontal partitioning"), inside one sub-index:
 - **Code:** <https://github.com/sebllns/kmhelpers>
 - **Docs:** <https://sebllns.github.io/kmhelpers/>
 - **Tuto** <https://sebllns.github.io/kmhelpers_slides/tuto>
+- **Slides**: <https://sebllns.github.io/kmhelpers_slides>
 - Bioconda: <https://anaconda.org/channels/bioconda/packages/kmhelpers>
 - Pypi: <https://pypi.org/project/kmhelpers/>
 - **Omicfinder** group on Github: <https://github.com/omicfinder>

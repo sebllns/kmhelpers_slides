@@ -5,13 +5,6 @@ local function has_image(blk)
   return found
 end
 
--- Drop pixel sizes meant for revealjs, the image then fits the frame
-local function reset_size(img)
-  img.attributes.width = nil
-  img.attributes.height = nil
-  return img
-end
-
 function Div(el)
   if FORMAT:match("revealjs") or not el.classes:includes("r-stack") then
     return nil
@@ -22,9 +15,7 @@ function Div(el)
   end
   local out = {}
   for i, blk in ipairs(el.content) do
-    if i == last then
-      table.insert(out, pandoc.walk_block(blk, { Image = reset_size }))
-    elseif not has_image(blk) then
+    if i == last or not has_image(blk) then
       table.insert(out, blk)
     end
   end
